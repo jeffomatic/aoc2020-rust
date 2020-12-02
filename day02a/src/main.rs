@@ -10,12 +10,11 @@ fn main() {
     for s in input.split("\n") {
         let caps = re.captures(s).unwrap();
         let from = caps[1].parse::<i32>().unwrap();
-        let to: i32 = caps[2].parse::<i32>().unwrap();
-        let want: char = caps[3].parse::<char>().unwrap();
+        let to = caps[2].parse::<i32>().unwrap();
+        let want = caps[3].parse::<char>().unwrap();
 
-        let pw = &caps[4];
         let mut got = 0;
-        for c in pw.chars() {
+        for c in caps[4].chars() {
             if c == want {
                 got += 1;
             }

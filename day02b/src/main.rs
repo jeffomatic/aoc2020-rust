@@ -11,8 +11,8 @@ fn main() {
         let caps = re.captures(s).unwrap();
         let p1 = caps[1].parse::<usize>().unwrap();
         let p2 = caps[2].parse::<usize>().unwrap();
-        let want: char = caps[3].parse::<char>().unwrap();
-        let pw = &caps[4].chars().collect::<Vec<char>>();
+        let want = caps[3].parse::<char>().unwrap();
+        let pw = caps[4].chars().collect::<Vec<char>>();
 
         let mut got = 0;
         if pw[p1 - 1] == want {
