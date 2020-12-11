@@ -34,7 +34,6 @@ fn main() {
         let mut next_occupied = HashSet::new();
 
         for s in seats.iter() {
-            // Count visible occupied seats
             let mut occupied_visible = 0;
             for (di, dj) in dirs.iter() {
                 let mut i = s.0 as i32;
