@@ -21,7 +21,7 @@ impl CompassDir {
         }
     }
 
-    fn move_forward(&self, pos: (i64, i64), n: i64) -> (i64, i64) {
+    fn apply(&self, pos: (i64, i64), n: i64) -> (i64, i64) {
         match self {
             CompassDir::W => (pos.0 - n, pos.1),
             CompassDir::E => (pos.0 + n, pos.1),
@@ -46,7 +46,7 @@ impl TurnDir {
         }
     }
 
-    fn turn(&self, from: CompassDir, amt: TurnAmount) -> CompassDir {
+    fn apply(&self, from: CompassDir, amt: TurnAmount) -> CompassDir {
         match (from, self, amt) {
             (CompassDir::W, TurnDir::L, TurnAmount::Quarter) => CompassDir::S,
             (CompassDir::W, TurnDir::L, TurnAmount::Half) => CompassDir::E,
@@ -124,19 +124,19 @@ impl Order {
         }
     }
 
-    fn update(&self, s: State) -> State {
+    fn apply(&self, s: State) -> State {
         match self {
             &Order::Forward(n) => State {
-                pos: s.dir.move_forward(s.pos, n),
+                pos: s.dir.apply(s.pos, n),
                 dir: s.dir,
             },
             &Order::Move(dir, n) => State {
-                pos: dir.move_forward(s.pos, n),
+                pos: dir.apply(s.pos, n),
                 dir: s.dir,
             },
             &Order::Turn(dir, amt) => State {
                 pos: s.pos,
-                dir: dir.turn(s.dir, amt),
+                dir: dir.apply(s.dir, amt),
             },
         }
     }
@@ -150,7 +150,7 @@ struct State {
 
 fn main() {
     let re = Regex::new(r#"([NSWEFLR])(\d+)"#).unwrap();
-    let instructions: Vec<Order> = get_input()
+    let orders: Vec<Order> = get_input()
         .lines()
         .map(|line| {
             let caps = re.captures(line).unwrap();
@@ -158,12 +158,12 @@ fn main() {
         })
         .collect();
 
-    let end = instructions.iter().fold(
+    let end = orders.iter().fold(
         State {
             pos: (0, 0),
             dir: CompassDir::E,
         },
-        |accum, ins| ins.update(accum),
+        |accum, order| order.apply(accum),
     );
 
     println!("{}", end.pos.0.abs() + end.pos.1.abs());

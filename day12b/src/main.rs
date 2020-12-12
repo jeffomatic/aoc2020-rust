@@ -21,7 +21,7 @@ impl CompassDir {
         }
     }
 
-    fn do_move(&self, pos: (i64, i64), n: i64) -> (i64, i64) {
+    fn apply(&self, pos: (i64, i64), n: i64) -> (i64, i64) {
         match self {
             CompassDir::W => (pos.0 - n, pos.1),
             CompassDir::E => (pos.0 + n, pos.1),
@@ -46,7 +46,7 @@ impl TurnDir {
         }
     }
 
-    fn turn(&self, (dx, dy): (i64, i64), amt: TurnAmount) -> (i64, i64) {
+    fn apply(&self, (dx, dy): (i64, i64), amt: TurnAmount) -> (i64, i64) {
         match (self, amt) {
             (TurnDir::L, TurnAmount::Quarter) => (dy, -dx),
             (TurnDir::L, TurnAmount::Half) => (-dx, -dy),
@@ -100,7 +100,7 @@ impl Order {
         }
     }
 
-    fn update(&self, s: State) -> State {
+    fn apply(&self, s: State) -> State {
         match self {
             &Order::Forward(n) => State {
                 pos: (s.pos.0 + n * s.waypoint.0, s.pos.1 + n * s.waypoint.1),
@@ -108,11 +108,11 @@ impl Order {
             },
             &Order::Move(dir, n) => State {
                 pos: s.pos,
-                waypoint: dir.do_move(s.waypoint, n),
+                waypoint: dir.apply(s.waypoint, n),
             },
             &Order::Turn(dir, amt) => State {
                 pos: s.pos,
-                waypoint: dir.turn(s.waypoint, amt),
+                waypoint: dir.apply(s.waypoint, amt),
             },
         }
     }
@@ -126,7 +126,7 @@ struct State {
 
 fn main() {
     let re = Regex::new(r#"([NSWEFLR])(\d+)"#).unwrap();
-    let instructions: Vec<Order> = get_input()
+    let orders: Vec<Order> = get_input()
         .lines()
         .map(|line| {
             let caps = re.captures(line).unwrap();
@@ -134,12 +134,12 @@ fn main() {
         })
         .collect();
 
-    let end = instructions.iter().fold(
+    let end = orders.iter().fold(
         State {
             pos: (0, 0),
             waypoint: (10, -1),
         },
-        |accum, ins| ins.update(accum),
+        |accum, order| order.apply(accum),
     );
 
     println!("{}", end.pos.0.abs() + end.pos.1.abs());
