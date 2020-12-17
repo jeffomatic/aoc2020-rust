@@ -32,11 +32,7 @@ fn main() {
                         if active.contains(&other) {
                             active_neighbors += 1;
                         } else {
-                            if let Some(count) = neighbors_for_inactives.get_mut(&other) {
-                                *count += 1;
-                            } else {
-                                neighbors_for_inactives.insert(other, 1);
-                            }
+                            *neighbors_for_inactives.entry(other).or_insert(0) += 1;
                         }
                     }
                 }
