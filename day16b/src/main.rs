@@ -69,14 +69,11 @@ fn main() {
         .map(|(label, fields)| (label.clone(), *fields.first().unwrap()))
         .collect();
 
-    let all_labels: Vec<String> = fields_for_rule.keys().cloned().collect();
     while let Some((finished_label, claimed_field)) = q.pop() {
-        for other_label in all_labels.iter() {
+        for (other_label, other_fields) in fields_for_rule.iter_mut() {
             if *other_label == finished_label {
                 continue;
             }
-
-            let other_fields = fields_for_rule.get_mut(other_label).unwrap();
 
             if let Some(i) = other_fields
                 .iter()
@@ -90,11 +87,11 @@ fn main() {
         }
     }
 
-    let departure_fields = fields_for_rule
+    let res = fields_for_rule
         .iter()
         .filter(|(label, _fields)| label.starts_with("departure"))
-        .map(|(_label, fields)| fields[0]);
-    let res = departure_fields.fold(1, |accum, f| accum * my_ticket[f]);
+        .map(|(_label, fields)| fields[0])
+        .fold(1, |accum, f| accum * my_ticket[f]);
 
     println!("{}", res);
 }
