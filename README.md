@@ -14,6 +14,12 @@ Of course, you can substitute `day01a` with the name of a different directory. T
 
 The build rule for each directory will compile the binary and run it. You can just keep running the `make` rule for a nice edit-compile-run loop. If a file called `input` exists at the top of the project subdirectory, its contents will be piped into the running program. For most Advent of Code projects, there is a large, fixed string input, so having it available via stdin is helpful.
 
+To run a *release build*, append `-release` to the make target, e.g.:
+
+```
+make day01-release
+```
+
 ## Creating new folders
 
 For new days, I usually just do the follwing:
