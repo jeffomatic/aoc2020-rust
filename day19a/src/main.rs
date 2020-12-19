@@ -7,8 +7,7 @@ use std::{
 enum Rule<'a> {
     Char(&'a str, char),
     Union(&'a str, Vec<Rule<'a>>),
-    Pair(&'a str, usize, usize),
-    Ref(&'a str, usize),
+    Seq(&'a str, Vec<usize>),
 }
 
 impl Rule<'_> {
@@ -16,8 +15,7 @@ impl Rule<'_> {
         match self {
             Self::Char(s, _) => s,
             Self::Union(s, _) => s,
-            Self::Pair(s, _, _) => s,
-            Self::Ref(s, _) => s,
+            Self::Seq(s, _) => s,
         }
     }
 }
@@ -35,11 +33,22 @@ fn check<'a>(
     let ok = match r {
         Rule::Char(_, c) => message.len() == 1 && message.chars().nth(0).unwrap() == *c,
         Rule::Union(_, rules) => rules.iter().any(|r| check(r, message, ruleset, cache)),
-        Rule::Pair(_, a, b) => (1..message.len()).any(|split| {
-            let (sa, sb) = message.split_at(split);
-            check(&ruleset[*a], sa, ruleset, cache) && check(&ruleset[*b], sb, ruleset, cache)
-        }),
-        Rule::Ref(_, n) => check(&ruleset[*n], message, ruleset, cache),
+        Rule::Seq(_, seq) => match seq.len() {
+            1 => check(&ruleset[seq[0]], message, ruleset, cache),
+            2 => {
+                let mut ok = false;
+                for i in 1..message.len() {
+                    if check(&ruleset[seq[0]], &message[0..i], ruleset, cache)
+                        && check(&ruleset[seq[1]], &message[i..], ruleset, cache)
+                    {
+                        ok = true;
+                        break;
+                    }
+                }
+                ok
+            }
+            _ => panic!("unsupported sequence length {}", seq.len()),
+        },
     };
 
     cache.insert((r.to_string(), message), ok);
@@ -52,12 +61,11 @@ fn parse_rule(def: &str) -> Rule {
         Rule::Char(def, def.chars().nth(pos + 1).unwrap())
     } else if def.contains("|") {
         Rule::Union(def, def.split(" | ").map(|seq| parse_rule(seq)).collect())
-    } else if def.contains(" ") {
-        let toks: Vec<&str> = def.split(" ").collect();
-        let (a, b) = (toks[0], toks[1]);
-        Rule::Pair(def, a.parse().unwrap(), b.parse().unwrap())
     } else {
-        Rule::Ref(def, def.parse().unwrap())
+        Rule::Seq(
+            def,
+            def.split(" ").map(|tok| tok.parse().unwrap()).collect(),
+        )
     }
 }
 
