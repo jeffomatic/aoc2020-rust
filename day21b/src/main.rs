@@ -43,7 +43,7 @@ fn main() {
     let mut allergens: HashSet<String> = HashSet::new();
     let mut ingredients_by_allergen: HashMap<String, HashSet<String>> = HashMap::new();
     for r in recipes.iter() {
-        allergens = allergens.union(&r.allergens).cloned().collect();
+        allergens.extend(r.allergens.iter().cloned());
 
         for a in r.allergens.iter() {
             if let Some(ings_for_allergen) = ingredients_by_allergen.get_mut(a) {
