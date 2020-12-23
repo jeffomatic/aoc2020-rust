@@ -6,9 +6,9 @@ fn main() {
     // insert initial values
     let input = "562893147";
     let mut initial_vals = input.chars().map(|c| c.to_digit(10).unwrap() as usize);
-    let mut cur = initial_vals.next().unwrap();
-    let first = cur;
+    let first = initial_vals.next().unwrap();
 
+    let mut cur = first;
     for next in initial_vals {
         nexts[cur] = next;
         cur = next;
@@ -23,28 +23,31 @@ fn main() {
     // complete the ring
     nexts[cur] = first;
 
+    // play the game
     cur = first;
     for _ in 0..num_rounds {
         let move1 = nexts[cur];
         let move2 = nexts[move1];
         let move3 = nexts[move2];
 
+        // remove the above 3 items from the list
+        nexts[cur] = nexts[move3];
+
         // calculate destination
         let mut dest = cur;
-        while [cur, move1, move2, move3].contains(&dest) {
+        while dest == cur || dest == move1 || dest == move2 || dest == move3 {
             dest -= 1;
             if dest == 0 {
                 dest = maxval;
             }
         }
 
-        // move some stuff around
-        nexts[cur] = nexts[move3];
+        // re-insert items into the list
         let temp = nexts[dest];
         nexts[dest] = move1;
         nexts[move3] = temp;
 
-        // advance current pointer
+        // advance to next item
         cur = nexts[cur];
     }
 
