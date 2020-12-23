@@ -34,16 +34,6 @@ function makeRing(initial: number[], max: number): Ring {
   }
 }
 
-function str(ring: Ring) {
-  let s = ring.cur.label.toString()
-  let node = ring.cur.next
-  while (node != ring.cur) {
-    s += " " + node.label.toString()
-    node = node.next
-  }
-  return s
-}
-
 function round(ring: Ring) {
   let move1 = ring.cur.next
   let move2 = move1.next

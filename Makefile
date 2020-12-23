@@ -10,4 +10,4 @@ $(folders):
 
 $(release_versions):
 	@ cargo build --release --manifest-path $(@:%-release=%)/Cargo.toml
-	@ if [ -f $(@:%-release=%)/input ]; then cat $(@:%-release=%)/input | $(@:%-release=%)/target/release/$(@:%-release=%); else $(@:%-release=%)/target/debug/$(@:%-release=%); fi
+	@ if [ -f $(@:%-release=%)/input ]; then cat $(@:%-release=%)/input | $(@:%-release=%)/target/release/$(@:%-release=%); else $(@:%-release=%)/target/release/$(@:%-release=%); fi
